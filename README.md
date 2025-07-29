@@ -1,6 +1,11 @@
 # ClearNebel Agent Builder
 
-A modular, extensible framework for building sophisticated, multi-user AI applications. This project features a concurrent multi-agent backend, a persistent web-based chat interface with role-based user management, and a complete, human-in-the-loop data pipeline for continuously improving models with Direct Preference Optimization (DPO).
+Currently, this project is just a Proof of Concept of some issues I have observed regarding the integrations of various LLM models.<br>
+The use of LLM models and their associated data security concerns is increasing, as publicly available LLM model providers are slowly running out of data. 
+With a combination of users and businesses trying to integrate LLMs into their workflows and daily operations, internal data may find its way to LLM providers, 
+where it could be used for training new models, as it is linked to private accounts. Instead of trying to prevent access and creating internal rules—which are mostly followed, 
+but sometimes willingly or unwillingly ignored by users—this project aims to deliver the best possible option for users to run locally hosted, open-weight models for their own use and to enable them to fine-tune the model. 
+There should also be multiple "LLMs" that can be fine-tuned for specific tasks, equipped with "Tools/Functions" to gather data from approved sources.
 
 ## Core Architecture & Features
 

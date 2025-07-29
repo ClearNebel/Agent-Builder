@@ -1,4 +1,4 @@
-# Refyniq
+# ClearNebel Agent Builder
 
 A modular, extensible framework for building sophisticated, multi-user AI applications. This project features a concurrent multi-agent backend, a persistent web-based chat interface with role-based user management, and a complete, human-in-the-loop data pipeline for continuously improving models with Direct Preference Optimization (DPO).
 

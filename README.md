@@ -26,12 +26,14 @@ your_main_project_folder/
 │   ├── tools/              # Custom agent tools
 │   ├── training/           # Fine-tuning scripts
 │   └── manage_agent.py     # The main administrative CLI tool
+│   └── worker.py           # The worker script
 │
 └── web/                    # The Django web application
     ├── accounts/           # User registration and login
     ├── admin_panel/        # Custom admin UI for permissions
     ├── chat/               # The main chat interface
     └── llm_frontend/       # Django project settings
+    └── main/               # The Main app for global settings
 ```
 
 ## Local Python Setup Guide

@@ -1,0 +1,78 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Create New User{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h2>Create New User</h2>
+    <p>Create a new user account and set their initial permissions and rate limits.</p>
+
+    <form method="post" class="permissions-form" novalidate>
+        {% csrf_token %}
+        
+        <!-- Section 0: User Creation -->
+        <h4>Account Details</h4>
+        <!-- Render the UserCreationForm fields manually for better styling -->
+        {% for field in user_form %}
+            <div class="form-field-wrapper">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}<small class="form-help-text">{{ field.help_text|safe }}</small>{% endif %}
+                {% if field.errors %}<div class="error-list">{{ field.errors }}</div>{% endif %}
+            </div>
+        {% endfor %}
+        {% if user_form.non_field_errors %}
+            <div class="error-list">{{ user_form.non_field_errors }}</div>
+        {% endif %}
+
+        <hr class="form-divider">
+
+        <!-- Section 1: System Access and Rate Limits -->
+        <h4>System Access & Global Rate Limits</h4>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>System / Provider</th>
+                    <th>Enable Access</th>
+                    <th>Daily Rate Limit (0 or blank = use default)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, details in display_settings.items %}
+                <tr>
+                    <td><strong>{{ details.display_name }}</strong></td>
+                    <td>
+                        <input type="checkbox" name="enabled_{{ key }}" class="enable-toggle">
+                    </td>
+                    <td>
+                        <input type="number" name="rate_limit_{{ key }}" class="rate-limit-input"
+                               placeholder="Default: {{ details.rate_limit }}">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <hr class="form-divider">
+
+        <!-- Section 2: Local Agent Permissions -->
+        <h4>Local Sub-Agent Permissions</h4>
+        <div class="form-group">
+            <div class="checkbox-grid">
+                {% for agent in available_local_agents %}
+                <div class="checkbox-item">
+                    <input type="checkbox" name="local_agents" value="{{ agent }}" id="agent-{{ agent }}">
+                    <label for="agent-{{ agent }}">{{ agent|title }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-save">Create User and Save Permissions</button>
+            <a href="{% url 'admin_panel:user_list' %}" class="btn-cancel">Cancel</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

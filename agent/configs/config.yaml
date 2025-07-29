@@ -1,0 +1,52 @@
+base_model: google/gemma-3-4b-it
+local_system:
+  display_name: "Local Agent System"
+  default_rate_limit: 100
+
+providers:
+  openai:
+    enabled: true
+    display_name: "OpenAI"
+    default_rate_limit: 25
+    models:
+      - id: "gpt-4-turbo-preview"
+        display_name: "GPT-4 Turbo"
+      - id: "gpt-3.5-turbo"
+        display_name: "GPT-3.5 Turbo"
+  google:
+    enabled: false
+    display_name: "Google"
+    default_rate_limit: 25
+    models:
+      - id: "gemini-1.5-pro-latest"
+        display_name: "Gemini 1.5 Pro"
+      - id: "gemini-1.0-pro"
+        display_name: "Gemini 1.0 Pro"
+router:
+  model_path: models/router
+agents:
+  general_agent:
+    description: Default LLM if no agent matches.
+    prompt_file: /configs/prompts/general_agent.txt
+    model_path: models/general_agent
+    tools_whitelist:
+    - get_current_date
+safety:
+  # Private Identifiable Information (PII)
+  force_local_on_pii:
+    enabled: true
+    patterns:
+      - name: "Email Address"
+        regex: "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b"
+      - name: "Phone Number (US)"
+        regex: "\\b(?:\\d{3}[-.]?){2}\\d{4}\\b"
+      - name: "Credit Card Number"
+        regex: "\\b(?:\\d{4}[- ]?){3}\\d{4}\\b"
+      - name: "Social Security Number"
+        regex: "\\b\\d{3}-\\d{2}-\\d{4}\\b"
+
+  # When any of these keywords are detected, the entire request is blocked.
+  block_on_dangerous_content:
+    enabled: true
+    keywords:
+      - "Keyword"

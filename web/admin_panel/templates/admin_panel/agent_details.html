@@ -1,0 +1,43 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Details for {{ agent_name|title }}{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="details-header">
+        <h2>Agent Details: <strong>{{ agent_name|title }}</strong></h2>
+        <a href="{% url 'admin_panel:agent_list' %}" class="btn-back">← Back to Agent List</a>
+    </div>
+
+    <div class="details-grid">
+        <div class="detail-item">
+            <h4>Base Model</h4>
+            <p>{{ base_model }}</p>
+        </div>
+
+        <div class="detail-item">
+            <h4>Prompt File</h4>
+            <p><code>{{ prompt_file }}</code></p>
+        </div>
+
+        <div class="detail-item full-width">
+            <h4>Assigned Tools</h4>
+            {% if available_tools %}
+            <ul class="tool-list">
+                {% for tool in available_tools %}
+                <li><code>{{ tool }}</code></li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No tools assigned.</p>
+            {% endif %}
+        </div>
+
+        <div class="detail-item full-width">
+            <h4>Prompt Content</h4>
+            <pre class="prompt-box">{{ prompt_content }}</pre>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<!-- Include Chart.js from a CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="admin-container">
+    <h2>Analytics Dashboard</h2>
+
+    <!-- Filter Form -->
+    <form method="get" class="filter-form">
+        <div class="filter-grid">
+            <div class="filter-item">
+                <label for="users">Users</label>
+                <select name="users" id="users" multiple>
+                    {% for user in all_users %}
+                    <option value="{{ user.id }}" {% if user.id in current_filters.users %}selected{% endif %}>
+                        {{ user.username }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-item">
+                <label for="agents">Agents / Models</label> 
+                <select name="agents" id="agents" multiple>
+                    {% for agent in all_agents %}
+                    <option value="{{ agent }}" {% if agent in current_filters.agents %}selected{% endif %}>
+                        {{ agent }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-item">
+                <label for="date_from">From</label>
+                <input type="date" name="date_from" id="date_from" value="{{ current_filters.date_from|default:'' }}">
+            </div>
+            <div class="filter-item">
+                <label for="date_to">To</label>
+                <input type="date" name="date_to" id="date_to" value="{{ current_filters.date_to|default:'' }}">
+            </div>
+        </div>
+        <div class="filter-actions">
+            <button type="submit" class="btn-manage">Apply Filters</button>
+            <a href="{% url 'admin_panel:analytics_dashboard' %}" class="btn-cancel">Clear Filters</a>
+        </div>
+    </form>
+
+    <hr class="form-divider">
+
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+        <div class="summary-card">
+            <h3>Total Calls</h3>
+            <p>{{ total_calls }}</p>
+        </div>
+    </div>
+
+    <!-- Data Tables and Chart -->
+    <div class="data-grid">
+        <div class="data-table-container">
+            <h3>Usage by Agent/Provider</h3>
+            <table class="admin-table">
+                <thead><tr><th>Name</th><th>Call Count</th></tr></thead>
+                <tbody>
+                    {% for item in usage_by_agent %}
+                    <tr><td>{{ item.agent_name }}</td><td>{{ item.call_count }}</td></tr>
+                    {% empty %}
+                    <tr><td colspan="2">No data for selected filters.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="data-table-container">
+            <h3>Usage by User</h3>
+            <table class="admin-table">
+                 <thead><tr><th>Username</th><th>Call Count</th></tr></thead>
+                <tbody>
+                    {% for item in usage_by_user %}
+                    <tr><td>{{ item.conversation__user__username }}</td><td>{{ item.call_count }}</td></tr>
+                    {% empty %}
+                    <tr><td colspan="2">No data for selected filters.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="chart-container">
+            <h3>Daily Usage</h3>
+            <canvas id="dailyUsageChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    const ctx = document.getElementById('dailyUsageChart').getContext('2d');
+    const dailyUsageChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_labels|safe }},
+            datasets: [{
+                label: '# of LLM Calls',
+                data: {{ chart_data|safe }},
+                backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                borderColor: 'rgba(0, 123, 255, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+{% endblock %}

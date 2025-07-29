@@ -1,0 +1,87 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Manage Permissions for {{ target_user.username }}{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h2>Manage Permissions for <strong>{{ target_user.username }}</strong></h2>
+    <form method="post" class="permissions-form">
+        {% csrf_token %}
+        
+        <!-- Section 1: System Access and Rate Limits -->
+        <h4>System Access & Global Rate Limits</h4>
+        <p>Enable high-level systems (Local or Public LLMs) and set user-specific daily rate limits.</p>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>System / Provider</th>
+                    <th>Enable Access</th>
+                    <th>Daily Rate Limit (0 or blank = use default)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, details in display_settings.items %}
+                <tr>
+                    <td><strong>{{ details.display_name }}</strong></td>
+                    <td>
+                        <input type="checkbox" name="enabled_{{ key }}" class="enable-toggle"
+                               {% if details.enabled %}checked{% endif %}>
+                    </td>
+                    <td>
+                        <input type="number" name="rate_limit_{{ key }}" class="rate-limit-input"
+                               value="{{ details.rate_limit|default:'' }}" placeholder="Default: {{ details.rate_limit }}">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <hr class="form-divider">
+
+        <!-- Section 2: Local Agent Permissions -->
+        <h4>Local Sub-Agent Permissions</h4>
+        <p>Choose which specific local agents the user can access. This only applies if the "Local Agent System" is enabled above.</p>
+        <div class="form-group">
+            <div class="checkbox-grid">
+                {% for agent in available_local_agents %}
+                <div class="checkbox-item">
+                    <input type="checkbox" name="local_agents" value="{{ agent }}" id="agent-{{ agent }}"
+                           {% if agent in user_enabled_local_agents %}checked{% endif %}>
+                    <label for="agent-{{ agent }}">{{ agent|title }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <hr class="form-divider">
+        <h4>Safety & Compliance</h4>
+        <p>Enable or disable specific safety features for this user.</p>
+        <div class="checkbox-group">
+            
+            <!-- Granular Checkbox 1: PII Detection -->
+            <div class="checkbox-item">
+                <input type="checkbox" name="flag_pii_force_local" id="flag_pii_force_local" class="enable-toggle"
+                       {% if user_feature_flags.pii_force_local %}checked{% endif %}>
+                <label for="flag_pii_force_local">Force to Local System on PII Detection</label>
+                <small class="form-help-text">If enabled, any prompt containing patterns like emails or phone numbers will be processed by the local agent system, regardless of user selection.</small>
+            </div>
+        
+            <!-- Granular Checkbox 2: Content Blocking -->
+            <div class="checkbox-item">
+                <input type="checkbox" name="flag_block_dangerous_content" id="flag_block_dangerous_content" class="enable-toggle"
+                       {% if user_feature_flags.block_dangerous_content %}checked{% endif %}>
+                <label for="flag_block_dangerous_content">Block Dangerous Content</label>
+                <small class="form-help-text">If enabled, any prompt or response containing keywords related to self-harm, hate speech, etc., will be blocked entirely.</small>
+            </div>
+        
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn-save">Save All Permissions</button>
+            <a href="{% url 'admin_panel:user_list' %}" class="btn-cancel">Cancel</a>
+        </div>
+    </form>
+</div>
+
+
+{% endblock %}

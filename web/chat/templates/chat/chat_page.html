@@ -1,0 +1,108 @@
+{% extends 'main/base.html' %}
+
+{% block title %}{{ conversation.title|truncatechars:50 }}{% endblock %}
+
+{% block content %}
+<div id="main-layout">
+    <div id="sidebar">
+        <a href="{% url 'start_new_chat' %}" onclick="localStorage.removeItem('expertSettings');" class="new-chat-btn">+ New Chat</a>
+        <h2>History</h2>
+        <ul id="conversation-list">
+            {% for conv in past_conversations %}
+            <li class="{% if conv.id == conversation.id %}active{% endif %}">
+                <a href="{% url 'chat_page' conversation_id=conv.id %}">{{ conv.title }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div id="chat-content-area">
+        <div id="chat-window">
+            <div id="chat-container">
+                <!-- Load existing messages from the database -->
+                {% for message in conversation.messages.all %}
+                    {% if message.role == 'user' %}
+                        <div class="message user-message">
+                            <div class="bubble">{{ message.content|linebreaksbr }}</div>
+                        </div>
+                    {% elif message.role == 'agent' %}
+                        <div class="message agent-message" data-message-id="{{ message.id }}">
+                            <div class="bubble">
+                                <div class="agent-name">{{ message.agent_name }}</div>
+                                <div class="text">
+                                    {{ message.content_as_html|safe }}
+                                  </div>
+                                <div class="feedback-buttons">
+                                    <button class="feedback-btn thumbs-up {% if message.feedback == 1 %}selected{% endif %}">👍</button>
+                                    <button class="feedback-btn thumbs-down {% if message.feedback == -1 %}selected{% endif %}">👎</button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div id="chat-form">
+                <textarea id="query-input" rows="2" placeholder="Type your message..." autofocus></textarea>
+                <button id="send-button">→</button>
+            </div>
+        </div>
+        <div id="expert-sidebar" class="closed">
+            <div class="panel-header">
+                <h3>Expert Settings</h3>
+                <button id="close-expert-panel">×</button>
+            </div>
+            <div class="panel-content">
+                <div class="setting-item">
+                    <label>Model Selection</label>
+                    <select id="model-select">
+                        <option value="local_system">Local Agent System</option>
+                        {% for provider_key, provider_details in provider_configs.items %}
+                        <optgroup label="{{ provider_details.display_name }}">
+                            {% for model in provider_details.models %}
+                                <option value="{{ provider_key }}:{{ model.id }}">{{ model.display_name }}</option>
+                            {% endfor %}
+                        </optgroup>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="setting-item" id="local-agent-settings">
+                    <label>Enabled Local Agents</label>
+                    <div id="agent-checkboxes">
+                    </div>
+                    <small>Uncheck agents to exclude them from routing.</small>
+                </div>
+                <div class="setting-item">
+                    <label for="temp-slider">Temperature: <span id="temp-value">0.7</span></label>
+                    <input type="range" id="temp-slider" min="0.1" max="1.0" step="0.1" value="0.7">
+                    <small>Higher = More creative, Lower = More factual.</small>
+                </div>
+                <div class="setting-item">
+                    <label for="topp-slider">Top P: <span id="topp-value">0.9</span></label>
+                    <input type="range" id="topp-slider" min="0.1" max="1.0" step="0.1" value="0.9">
+                    <small>Controls diversity of token selection.</small>
+                </div>
+                <button id="save-settings-btn" class="btn-save">Apply Settings</button>
+            </div>
+        </div>
+        <button id="open-expert-panel">⚙️</button>
+    </div>
+</div>
+
+<script>
+    // --- CSRF Token for AJAX ---
+    const csrftoken = '{{ csrf_token }}';
+    // --- Data for permitted agents (passed from Django) ---
+    const userPermittedAgents = {{ user_permitted_agents_json|safe }};
+
+    const providerConfigs = {{ provider_configs_json|safe }};
+
+    const feedbackurl = "{% url 'feedback' %}";
+    const urlexpertsettings = "{% url 'save_expert_settings' %}";
+
+    const conversationId = '{{ conversation.id|default_if_none:"" }}';
+
+</script>
+{% load static %}
+<script src="{% static 'js/purify.min.js' %}"></script>
+<script src="{% static 'js/chat.js' %}"></script>
+{% endblock %}

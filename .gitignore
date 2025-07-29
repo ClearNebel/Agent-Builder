@@ -1,0 +1,17 @@
+.venv
+.env
+db.sqlite3
+*.code-workspace
+__pycache__
+document.index
+agent/models/*
+agent/data/rag_data/*
+agent/data/agents/*
+agent/configs/prompts/*
+agent/configs/config_base.yaml
+web/staticfiles*
+web/*/migrations*
+
+test_api.py
+setup_redis.txt
+documentation

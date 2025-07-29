@@ -1,0 +1,25 @@
+# Core App
+transformers>=4.41.0
+torch>=2.1.0
+accelerate>=0.29.0
+bitsandbytes>=0.43.0
+pyyaml>=6.0
+langchain
+langchain-openai
+langchain-google-genai
+python-dotenv
+
+# RAG & Tools
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.4
+
+# Training
+datasets>=2.18.0
+peft>=0.10.0
+trl>=0.8.6
+
+# Web-App
+Django
+redis
+djangorestframework
+djangorestframework-simplejwt

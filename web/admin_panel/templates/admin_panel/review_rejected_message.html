@@ -1,0 +1,49 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Review Rejected Message{% endblock %}
+
+{% block content %}
+<div class="admin-container review-layout">
+    <div class="context-panel">
+        <h3>Conversation Context</h3>
+        <div class="chat-history">
+            {% for message in conversation_context %}
+                <div class="history-message {% if message.role == 'user' %}history-user{% else %}history-agent{% endif %} {% if message.id == rejected_message.id %}highlight-rejected{% endif %}">
+                    <strong>{{ message.get_role_display }}{% if message.agent_name %}({{ message.agent_name }}){% endif %}:</strong>
+                    <p>{{ message.content|linebreaksbr }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="review-panel">
+        <h3>Provide Ideal Response & Routing Correction</h3>
+        <p>Review the rejected message and provide corrections.</p>
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- NEW: ROUTING CORRECTION DROPDOWN -->
+            <div class="form-group">
+                <label for="corrected_route">Correct Route:</label>
+                <p class="form-help-text">Was this sent to the wrong agent? If so, select the agent that <strong>should</strong> have received this prompt. The original agent was <strong>{{ rejected_message.agent_name }}</strong>.</p>
+                <select name="corrected_route" id="corrected_route">
+                    <option value="">-- No change needed --</option>
+                    {% for agent in available_agents %}
+                    <option value="{{ agent }}" {% if agent == rejected_message.corrected_route %}selected{% endif %}>{{ agent|title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="corrected_content">Corrected Response:</label>
+                 <p class="form-help-text">Write a corrected, ideal response that the chosen agent *should* have given.</p>
+                <textarea name="corrected_content" id="corrected_content" rows="10">{{ rejected_message.corrected_content|default:'' }}</textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" name="action" value="save" class="btn-save">Save Correction & Mark as Reviewed</button>
+                <button type="submit" name="action" value="ignore" class="btn-cancel" onclick="return confirm('Are you sure you want to ignore this feedback? It will be hidden from the dashboard.')">Ignore & Mark as Reviewed</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

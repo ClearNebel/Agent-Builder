@@ -1,0 +1,19 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="admin-container">
+    <h2>SFT Dataset Management</h2>
+    <p>Select an agent to view, add, or export its Supervised Fine-Tuning (SFT) dataset. These datasets are used to teach the agent its core behaviors.</p>
+    <div class="agent-list-container">
+        {% for agent in agents %}
+        <div class="agent-card">
+            <h3>{{ agent.name|title }}</h3>
+            <p>{{ agent.description }}</p>
+            <p><strong>Current Examples: {{ agent.count }}</strong></p>
+            <a href="{% url 'admin_panel:manage_sft_dataset' agent_name=agent.name %}" class="btn-manage">Manage Dataset</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

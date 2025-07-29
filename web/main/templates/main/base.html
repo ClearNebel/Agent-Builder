@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/site.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static "pictures/favicon.ico" %}">
+</head>
+<body>
+    <nav>
+        {% load static %}
+        <a href="{% url 'start_new_chat' %}" onclick="localStorage.removeItem('expertSettings');">
+            <img src="{% static "pictures/clearnebel_logo.png" %}" alt="Logo">
+            ClearNebel Agent Builder
+        </a>
+        <div>
+            {% if user.is_authenticated %}
+
+                <!-- This link correctly clears local storage and starts a new chat session -->
+                <a href="{% url 'start_new_chat' %}" onclick="localStorage.removeItem('expertSettings');">Chat</a>
+
+                <!-- Conditional links for Admin users -->
+                {% if user.groups.all.0.name == 'Admins' or user.is_superuser %}
+                <div class="dropdown">
+                    <button class="dropdown-btn">Admin ▾</button>
+                    <div class="dropdown-content">
+                        <a href="{% url 'admin_panel:user_list' %}">User Management</a>
+                        <a href="{% url 'admin_panel:agent_list' %}">Agent Configuration</a>
+                        <a href="{% url 'admin_panel:curation_dashboard' %}">Feedback Curation</a>
+                        <a href="{% url 'admin_panel:analytics_dashboard' %}">Analytics</a> 
+                        <a href="{% url 'admin_panel:dataset_list' %}">Datasets Creator</a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="dropdown">
+                    <button class="dropdown-btn">Welcome, {{ user.username }} ▾</button>
+                    <div class="dropdown-content">
+                        <a href="{% url 'accounts:password_change' %}">Change Password</a>
+                        <a href="{% url 'accounts:logout' %}" onclick="localStorage.removeItem('expertSettings');">Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'accounts:login' %}">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+    <main>
+        {% block content %}
+        <!-- Child templates like chat_page.html will insert their content here -->
+        {% endblock %}
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Find all dropdowns on the page (for future scalability)
+            const dropdowns = document.querySelectorAll('.dropdown');
+
+            dropdowns.forEach(dropdown => {
+                const btn = dropdown.querySelector('.dropdown-btn');
+                const content = dropdown.querySelector('.dropdown-content');
+
+                btn.addEventListener('click', function(event) {
+                    // Prevent the click from being caught by the window listener immediately
+                    event.stopPropagation();
+                    // Toggle the 'show' class on the content for this specific dropdown
+                    content.classList.toggle('show');
+                });
+            });
+
+            // Close the dropdown if the user clicks outside of it
+            window.addEventListener('click', function(event) {
+                dropdowns.forEach(dropdown => {
+                    const btn = dropdown.querySelector('.dropdown-btn');
+                    const content = dropdown.querySelector('.dropdown-content');
+                    // If the click was not on the button and the dropdown is open, close it
+                    if (!btn.contains(event.target) && content.classList.contains('show')) {
+                        content.classList.remove('show');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Agent Configurations{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h2>Agent Configurations</h2>
+    <p>Select an agent to view its configuration details.</p>
+
+    <div class="agent-list-container">
+        {% for agent in agents %} {# We are now iterating over the list of dictionaries #}
+        <div class="agent-card">
+            <h3>{{ agent.name|title }}</h3>
+            <p>{{ agent.description }}</p> {# Display the new description field #}
+            <a href="{% url 'admin_panel:agent_details' agent_name=agent.name %}" class="btn-manage">View Details</a>
+        </div>
+        {% empty %}
+        <p>No agents are defined in the configuration file.</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

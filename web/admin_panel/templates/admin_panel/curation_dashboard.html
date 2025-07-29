@@ -1,0 +1,40 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Feedback Curation Dashboard{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h2>Feedback Curation Dashboard</h2>
+    <p>Review user-rejected messages to create high-quality training data. Providing a "Corrected Response" allows this message to be used for preference tuning.</p>
+
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Conversation</th>
+                <th>Rejected Response (Snippet)</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for message in rejected_messages %}
+            <tr>
+                <td>{{ message.conversation.user.username }}</td>
+                <td>{{ message.conversation.title|truncatechars:30 }}</td>
+                <td><em>"{{ message.content|truncatechars:50 }}"</em></td>
+                <td>{{ message.created_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <a href="{% url 'admin_panel:review_rejected_message' message_id=message.id %}" class="btn-manage">Review</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No un-reviewed rejected messages found. Good job!</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

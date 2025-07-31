@@ -7,6 +7,8 @@ where it could be used for training new models, as it is linked to private accou
 but sometimes willingly or unwillingly ignored by users—this project aims to deliver the best possible option for users to run locally hosted, open-weight models for their own use and to enable them to fine-tune the model. 
 There should also be multiple "LLMs" that can be fine-tuned for specific tasks, equipped with "Tools/Functions" to gather data from approved sources.
 
+DISCLAIMER Not intended to be deployed directly internet facing!
+
 ## Core Architecture & Features
 
 The system is architected as a set of decoupled services for scalability and robustness:
